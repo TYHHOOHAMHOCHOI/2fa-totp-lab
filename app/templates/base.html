@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="2FA Lab — Demo hệ thống xác thực đa nhân tố TOTP cho đồ án an toàn thông tin">
+  <title>{% block title %}2FA Lab{% endblock %}</title>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-container" id="flash-container">
+        {% for category, message in messages %}
+          <div class="flash flash-{{ category }}" role="alert">
+            <span class="flash-icon">
+              {% if category == 'success' %}✅
+              {% elif category == 'error' %}❌
+              {% elif category == 'warning' %}⚠️
+              {% else %}ℹ️
+              {% endif %}
+            </span>
+            <span class="flash-text">{{ message }}</span>
+            <button class="flash-close" onclick="this.parentElement.remove()" aria-label="Đóng">×</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Main Content -->
+  <main class="main-wrapper">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Scripts -->
+  <script>
+    // Auto dismiss flash messages after 5s
+    setTimeout(() => {
+      const c = document.getElementById('flash-container');
+      if (c) c.style.opacity = '0', setTimeout(() => c.remove(), 400);
+    }, 5000);
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

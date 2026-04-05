@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Thiết Lập Google Authenticator — 2FA Lab{% endblock %}
+
+{% block content %}
+<div class="auth-card wide">
+  <div class="auth-icon">📱</div>
+  <h1 class="auth-title">Thiết Lập Google Authenticator</h1>
+  <p class="auth-subtitle">Quét mã QR bằng ứng dụng Google Authenticator trên điện thoại</p>
+
+  <!-- QR Code -->
+  <div class="qr-container">
+    <img src="{{ qr_image }}" alt="QR Code for Google Authenticator"
+         title="Quét mã này bằng Google Authenticator">
+  </div>
+
+  <!-- Secret Key (nhập tay) -->
+  <div class="form-label" style="margin-bottom:0.4rem;">🔑 Secret Key (nhập thủ công)</div>
+  <div class="secret-box">
+    <span class="secret-key" id="secret-key">{{ secret_formatted }}</span>
+    <button class="copy-btn" id="copy-btn" title="Sao chép secret key" onclick="copySecret()">📋</button>
+  </div>
+
+  <div style="text-align:center; margin-bottom:1.25rem;">
+    <span class="timer-badge">⏱ Mã thay đổi mỗi 30 giây</span>
+  </div>
+
+  <!-- 3-step guide -->
+  <ol class="steps-list">
+    <li>
+      <span class="step-num-badge">1</span>
+      <span>Mở ứng dụng <strong>Google Authenticator</strong> trên điện thoại</span>
+    </li>
+    <li>
+      <span class="step-num-badge">2</span>
+      <span>Nhấn dấu <strong>+</strong> → chọn <strong>Quét mã QR</strong> rồi hướng camera vào mã ở trên</span>
+    </li>
+    <li>
+      <span class="step-num-badge">3</span>
+      <span>Ứng dụng sẽ hiện mã <strong>6 chữ số</strong> tên <em>2FA-Lab ({{ username }})</em> — dùng mã này để đăng nhập</span>
+    </li>
+  </ol>
+
+  <!-- Confirm -->
+  <form method="POST" action="{{ url_for('auth.setup_2fa') }}">
+    <button type="submit" class="btn btn-primary">✅ Tôi Đã Quét Xong — Tiếp Tục</button>
+  </form>
+
+  <div style="text-align:center; margin-top:0.75rem;">
+    <a href="{{ url_for('auth.register') }}" class="btn-ghost btn">← Đăng ký lại</a>
+  </div>
+
+  <div class="info-box" style="margin-top:1.25rem; margin-bottom:0;">
+    🔒 Secret key được mã hóa và lưu an toàn trong database.
+    Không bao giờ chia sẻ secret key với người khác!
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function copySecret() {
+    const key = document.getElementById('secret-key').textContent.replace(/\s/g, '');
+    navigator.clipboard.writeText(key).then(() => {
+      const btn = document.getElementById('copy-btn');
+      btn.textContent = '✅';
+      setTimeout(() => btn.textContent = '📋', 2000);
+    });
+  }
+</script>
+{% endblock %}

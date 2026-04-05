@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}
+  {% if step == 2 %}Nhập Mã OTP{% else %}Đăng Nhập{% endif %} — 2FA Lab
+{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+  <div class="auth-icon">🔐</div>
+  <h1 class="auth-title">{% if step == 2 %}Nhập Mã Xác Thực{% else %}Đăng Nhập{% endif %}</h1>
+  <p class="auth-subtitle">
+    {% if step == 2 %}
+      Mở Google Authenticator và nhập mã 6 số
+    {% else %}
+      Xác thực 2 bước bảo mật — 2FA Lab
+    {% endif %}
+  </p>
+
+  <!-- Step Indicator -->
+  <div class="step-indicator">
+    <div class="step-item">
+      <div class="step-circle {% if step == 1 %}active{% else %}completed{% endif %}">
+        {% if step == 2 %}✓{% else %}1{% endif %}
+      </div>
+      <span class="step-label {% if step == 1 %}active{% endif %}">Mật Khẩu</span>
+    </div>
+    <div class="step-line {% if step == 2 %}completed{% endif %}"></div>
+    <div class="step-item">
+      <div class="step-circle {% if step == 2 %}active{% else %}pending{% endif %}">2</div>
+      <span class="step-label {% if step == 2 %}active{% endif %}">Mã OTP</span>
+    </div>
+  </div>
+
+  {# ─── BƯỚC 1: Username + Password ─── #}
+  {% if step == 1 %}
+  <form method="POST" action="{{ url_for('auth.login') }}" id="login-form">
+    <div class="form-group">
+      <label class="form-label" for="username">Tên đăng nhập</label>
+      <div class="input-wrapper">
+        <span class="input-icon">👤</span>
+        <input class="form-input" type="text" id="username" name="username"
+               placeholder="Nhập username" autocomplete="username" required autofocus>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="password">Mật khẩu</label>
+      <div class="input-wrapper">
+        <span class="input-icon">🔒</span>
+        <input class="form-input" type="password" id="password" name="password"
+               placeholder="Nhập mật khẩu" autocomplete="current-password" required>
+        <button type="button" class="input-toggle" id="toggle-pw" aria-label="Hiện/ẩn">👁️</button>
+      </div>
+    </div>
+
+    <!-- Quên mật khẩu link -->
+    <div class="forgot-row">
+      <a href="{{ url_for('auth.forgot_password') }}" class="forgot-link">Quên mật khẩu?</a>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Tiếp Theo →</button>
+  </form>
+
+  <div class="auth-footer">
+    Chưa có tài khoản? <a href="{{ url_for('auth.register') }}">Đăng ký ngay</a>
+  </div>
+
+  {# ─── BƯỚC 2: OTP ─── #}
+  {% else %}
+  <p style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:0.5rem;">
+    Tài khoản: <strong style="color:var(--navy);">{{ username }}</strong>
+  </p>
+
+  <form method="POST" action="{{ url_for('auth.verify_otp') }}" id="otp-form">
+    <div class="otp-grid" id="otp-grid">
+      {% for i in range(1, 7) %}
+      <input class="otp-box" type="text" id="d{{ i }}" name="d{{ i }}"
+             maxlength="1" inputmode="numeric" pattern="[0-9]"
+             autocomplete="{% if i == 1 %}one-time-code{% else %}off{% endif %}"
+             aria-label="Chữ số OTP thứ {{ i }}">
+      {% endfor %}
+    </div>
+
+    <div class="otp-timer">
+      ⏱ Mã hết hạn trong: <span class="timer-num" id="timer-num">30s</span>
+    </div>
+
+    <button type="submit" class="btn btn-primary" id="verify-btn">✔ Xác Nhận</button>
+  </form>
+
+  <div class="auth-footer" style="margin-top:0.75rem;">
+    <a href="{{ url_for('auth.login') }}" style="color:var(--text-muted); font-weight:400;">← Đăng nhập lại</a>
+    &nbsp;|&nbsp;
+    <a href="{{ url_for('auth.forgot_password') }}">Quên mật khẩu?</a>
+  </div>
+  {% endif %}
+
+  <div class="security-badge">🔐 Xác thực 2 yếu tố đang bật</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if step == 1 %}
+<script>
+  document.getElementById('toggle-pw').addEventListener('click', function() {
+    const inp = document.getElementById('password');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    this.textContent = inp.type === 'password' ? '👁️' : '🙈';
+  });
+</script>
+
+{% else %}
+<script>
+  const digits = document.querySelectorAll('.otp-box');
+
+  // Auto-advance + backspace
+  digits.forEach((inp, idx) => {
+    inp.addEventListener('input', function() {
+      this.value = this.value.replace(/\D/g, '').slice(-1);
+      if (this.value && idx < digits.length - 1) digits[idx + 1].focus();
+      if (idx === digits.length - 1 && this.value) {
+        setTimeout(() => document.getElementById('otp-form').submit(), 200);
+      }
+    });
+
+    inp.addEventListener('keydown', function(e) {
+      if (e.key === 'Backspace' && !this.value && idx > 0) digits[idx - 1].focus();
+      if (e.key === 'ArrowLeft'  && idx > 0) digits[idx - 1].focus();
+      if (e.key === 'ArrowRight' && idx < digits.length - 1) digits[idx + 1].focus();
+    });
+
+    inp.addEventListener('paste', function(e) {
+      e.preventDefault();
+      const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+      for (let i = 0; i < 6 && i < pasted.length; i++) digits[i].value = pasted[i];
+      digits[Math.min(pasted.length, 5)].focus();
+    });
+  });
+
+  if (digits.length) digits[0].focus();
+
+  // Countdown timer
+  function updateTimer() {
+    const secs = 30 - Math.floor(Date.now() / 1000 % 30);
+    const el = document.getElementById('timer-num');
+    el.textContent = secs + 's';
+    el.classList.toggle('urgent', secs <= 8);
+  }
+  updateTimer();
+  setInterval(updateTimer, 500);
+</script>
+{% endif %}
+{% endblock %}
