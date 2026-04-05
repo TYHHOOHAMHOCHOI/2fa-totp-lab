@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}
-  {% if step == 2 %}Nhập Mã OTP{% else %}Đăng Nhập{% endif %} — 2FA Lab
+{% if step == 2 %}Nhập Mã OTP{% else %}Đăng Nhập{% endif %} — 2FA Lab
 {% endblock %}
 
 {% block content %}
@@ -9,9 +9,9 @@
   <h1 class="auth-title">{% if step == 2 %}Nhập Mã Xác Thực{% else %}Đăng Nhập{% endif %}</h1>
   <p class="auth-subtitle">
     {% if step == 2 %}
-      Mở Google Authenticator và nhập mã 6 số
+    Mở Google Authenticator và nhập mã 6 số
     {% else %}
-      Xác thực 2 bước bảo mật — 2FA Lab
+    Xác thực 2 bước bảo mật — 2FA Lab
     {% endif %}
   </p>
 
@@ -37,8 +37,8 @@
       <label class="form-label" for="username">Tên đăng nhập</label>
       <div class="input-wrapper">
         <span class="input-icon">👤</span>
-        <input class="form-input" type="text" id="username" name="username"
-               placeholder="Nhập username" autocomplete="username" required autofocus>
+        <input class="form-input" type="text" id="username" name="username" placeholder="Nhập username"
+          autocomplete="username" required autofocus>
       </div>
     </div>
 
@@ -46,8 +46,8 @@
       <label class="form-label" for="password">Mật khẩu</label>
       <div class="input-wrapper">
         <span class="input-icon">🔒</span>
-        <input class="form-input" type="password" id="password" name="password"
-               placeholder="Nhập mật khẩu" autocomplete="current-password" required>
+        <input class="form-input" type="password" id="password" name="password" placeholder="Nhập mật khẩu"
+          autocomplete="current-password" required>
         <button type="button" class="input-toggle" id="toggle-pw" aria-label="Hiện/ẩn">👁️</button>
       </div>
     </div>
@@ -73,10 +73,8 @@
   <form method="POST" action="{{ url_for('auth.verify_otp') }}" id="otp-form">
     <div class="otp-grid" id="otp-grid">
       {% for i in range(1, 7) %}
-      <input class="otp-box" type="text" id="d{{ i }}" name="d{{ i }}"
-             maxlength="1" inputmode="numeric" pattern="[0-9]"
-             autocomplete="{% if i == 1 %}one-time-code{% else %}off{% endif %}"
-             aria-label="Chữ số OTP thứ {{ i }}">
+      <input class="otp-box" type="text" id="d{{ i }}" name="d{{ i }}" maxlength="1" inputmode="numeric" pattern="[0-9]"
+        autocomplete="{% if i == 1 %}one-time-code{% else %}off{% endif %}" aria-label="Chữ số OTP thứ {{ i }}">
       {% endfor %}
     </div>
 
@@ -101,7 +99,7 @@
 {% block scripts %}
 {% if step == 1 %}
 <script>
-  document.getElementById('toggle-pw').addEventListener('click', function() {
+  document.getElementById('toggle-pw').addEventListener('click', function () {
     const inp = document.getElementById('password');
     inp.type = inp.type === 'password' ? 'text' : 'password';
     this.textContent = inp.type === 'password' ? '👁️' : '🙈';
@@ -114,7 +112,7 @@
 
   // Auto-advance + backspace
   digits.forEach((inp, idx) => {
-    inp.addEventListener('input', function() {
+    inp.addEventListener('input', function () {
       this.value = this.value.replace(/\D/g, '').slice(-1);
       if (this.value && idx < digits.length - 1) digits[idx + 1].focus();
       if (idx === digits.length - 1 && this.value) {
@@ -122,13 +120,13 @@
       }
     });
 
-    inp.addEventListener('keydown', function(e) {
+    inp.addEventListener('keydown', function (e) {
       if (e.key === 'Backspace' && !this.value && idx > 0) digits[idx - 1].focus();
-      if (e.key === 'ArrowLeft'  && idx > 0) digits[idx - 1].focus();
+      if (e.key === 'ArrowLeft' && idx > 0) digits[idx - 1].focus();
       if (e.key === 'ArrowRight' && idx < digits.length - 1) digits[idx + 1].focus();
     });
 
-    inp.addEventListener('paste', function(e) {
+    inp.addEventListener('paste', function (e) {
       e.preventDefault();
       const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
       for (let i = 0; i < 6 && i < pasted.length; i++) digits[i].value = pasted[i];

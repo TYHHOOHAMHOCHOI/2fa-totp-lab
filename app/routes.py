@@ -11,9 +11,6 @@ from app.auth import (generate_totp_secret, get_totp_uri,
 auth_bp = Blueprint('auth', __name__)
 
 
-# ═══════════════════════════════════════════════════════════════════
-# TRANG CHỦ
-# ═══════════════════════════════════════════════════════════════════
 @auth_bp.route('/')
 def index():
     if current_user.is_authenticated:
@@ -21,9 +18,6 @@ def index():
     return redirect(url_for('auth.login'))
 
 
-# ═══════════════════════════════════════════════════════════════════
-# ĐĂNG KÝ
-# ═══════════════════════════════════════════════════════════════════
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
@@ -72,9 +66,6 @@ def register():
     return render_template('register.html')
 
 
-# ═══════════════════════════════════════════════════════════════════
-# THIẾT LẬP 2FA — HIỂN THỊ QR CODE
-# ═══════════════════════════════════════════════════════════════════
 @auth_bp.route('/setup-2fa', methods=['GET', 'POST'])
 def setup_2fa():
     user_id = session.get('setup_2fa_user_id')
@@ -111,9 +102,6 @@ def setup_2fa():
                            qr_image=qr_b64)
 
 
-# ═══════════════════════════════════════════════════════════════════
-# ĐĂNG NHẬP — BƯỚC 1: username + password
-# ═══════════════════════════════════════════════════════════════════
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -142,9 +130,8 @@ def login():
     return render_template('login.html', step=1)
 
 
-# ═══════════════════════════════════════════════════════════════════
-# XÁC THỰC OTP — BƯỚC 2
-# ═══════════════════════════════════════════════════════════════════
+
+# XÁC THỰC OTP 
 @auth_bp.route('/verify-otp', methods=['GET', 'POST'])
 def verify_otp():
     user_id = session.get('otp_user_id')
@@ -178,9 +165,7 @@ def verify_otp():
     return render_template('login.html', step=2, username=user.username)
 
 
-# ═══════════════════════════════════════════════════════════════════
-# QUÊN MẬT KHẨU — ĐẶT LẠI KHÔNG CẦN EMAIL
-# ═══════════════════════════════════════════════════════════════════
+# QUÊN MẬT KHẨU
 @auth_bp.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
     """
@@ -223,18 +208,14 @@ def forgot_password():
     return render_template('forgot_password.html')
 
 
-# ═══════════════════════════════════════════════════════════════════
-# DASHBOARD — TRANG CHỦ SAU ĐĂNG NHẬP
-# ═══════════════════════════════════════════════════════════════════
+# DASHBOARD
 @auth_bp.route('/dashboard')
 @login_required
 def dashboard():
     return render_template('dashboard.html', user=current_user)
 
 
-# ═══════════════════════════════════════════════════════════════════
 # ĐĂNG XUẤT
-# ═══════════════════════════════════════════════════════════════════
 @auth_bp.route('/logout')
 @login_required
 def logout():

@@ -20,8 +20,7 @@ def generate_totp_secret() -> str:
 
 def get_totp_uri(username: str, secret: str) -> str:
     """
-    Tạo URI chuẩn otpauth://totp/... để Google Authenticator có thể đọc.
-    Format: otpauth://totp/{issuer}:{username}?secret={secret}&issuer={issuer}
+    Tạo URI chuẩn để Google Authenticator có thể đọc.
     """
     return pyotp.totp.TOTP(secret).provisioning_uri(
         name=username,

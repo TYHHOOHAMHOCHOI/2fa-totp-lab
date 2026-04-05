@@ -8,13 +8,11 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# File môi trường chứa cấu hình nhạy cảm (KHÔNG BAO GIỜ PUSH LÊN GIT)
 .env
 
 # Thư mục IDE
 .vscode/
 .idea/
 
-# Thư mục chứa dữ liệu tĩnh (nếu có sinh ra)
-*.log
+# Thư mục chứa dữ liệu tĩnh
 *.sqlite3

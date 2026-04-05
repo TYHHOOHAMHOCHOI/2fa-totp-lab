@@ -9,11 +9,10 @@
 
   <!-- QR Code -->
   <div class="qr-container">
-    <img src="{{ qr_image }}" alt="QR Code for Google Authenticator"
-         title="Quét mã này bằng Google Authenticator">
+    <img src="{{ qr_image }}" alt="QR Code for Google Authenticator" title="Quét mã này bằng Google Authenticator">
   </div>
 
-  <!-- Secret Key (nhập tay) -->
+  <!-- Secret Key -->
   <div class="form-label" style="margin-bottom:0.4rem;">🔑 Secret Key (nhập thủ công)</div>
   <div class="secret-box">
     <span class="secret-key" id="secret-key">{{ secret_formatted }}</span>
@@ -36,7 +35,8 @@
     </li>
     <li>
       <span class="step-num-badge">3</span>
-      <span>Ứng dụng sẽ hiện mã <strong>6 chữ số</strong> tên <em>2FA-Lab ({{ username }})</em> — dùng mã này để đăng nhập</span>
+      <span>Ứng dụng sẽ hiện mã <strong>6 chữ số</strong> tên <em>2FA-Lab ({{ username }})</em> — dùng mã này để đăng
+        nhập</span>
     </li>
   </ol>
 
