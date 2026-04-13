@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — 2FA Lab{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+
+  <!-- Header Card -->
+  <div class="dashboard-card">
+    <div class="dashboard-header">
+      <div>
+        <div class="dashboard-title"> Dashboard</div>
+        <p style="font-size:0.875rem; color:var(--text-muted); margin-top:0.25rem;">
+          Chào mừng trở lại, <strong style="color:var(--navy);">{{ user.username }}</strong>!
+        </p>
+      </div>
+      <a href="{{ url_for('auth.logout') }}" class="logout-btn"> Đăng xuất</a>
+    </div>
+
+    <!-- Status badges -->
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+      <span class="badge-2fa"> 2FA đang hoạt động</span>
+      <span
+        style="background:#e0e7ff; color:#3730a3; border-radius:999px; padding:0.3rem 0.875rem; font-size:0.8rem; font-weight:600;">
+        TOTP / Google Authenticator
+      </span>
+    </div>
+
+    <!-- Info Grid -->
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-item-label">Tài khoản</div>
+        <div class="info-item-value">{{ user.username }}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-item-label">Trạng thái 2FA</div>
+        <div class="info-item-value" style="color:#065f46;">
+          {% if user.is_2fa_setup %} Đã thiết lập{% else %} Chưa thiết lập{% endif %}
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-item-label">User ID</div>
+        <div class="info-item-value">#{{ user.id }}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-item-label">Phương thức xác thực</div>
+        <div class="info-item-value" style="font-size:0.85rem;">TOTP (RFC 6238)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Demo Lab Info -->
+  <div class="dashboard-card" style="border-top-color:#6366f1;">
+    <h2 style="font-size:1.125rem; font-weight:700; color:var(--navy); margin-bottom:1rem;">
+      Về Dự Án 2FA Lab
+    </h2>
+    <div style="display:grid; gap:0.75rem; font-size:0.875rem; color:var(--text-body);">
+      <div class="info-item">
+        <div class="info-item-label">Công nghệ</div>
+        <div class="info-item-value" style="font-weight:400; font-size:0.875rem; color:var(--text-body);">
+          Python Flask + PostgreSQL + Docker + pyotp + qrcode
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-item-label">Thuật toán</div>
+        <div class="info-item-value" style="font-weight:400; font-size:0.875rem; color:var(--text-body);">
+          TOTP (Time-based One-Time Password) — RFC 6238, chu kỳ 30 giây
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-item-label">Mục đích</div>
+        <div class="info-item-value" style="font-weight:400; font-size:0.875rem; color:var(--text-body);">
+          Demo đồ án An toàn thông tin — minh họa tích hợp Google Authenticator
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Security flow -->
+  <div class="dashboard-card" style="border-top-color:#10b981;">
+    <h2 style="font-size:1.125rem; font-weight:700; color:var(--navy); margin-bottom:1rem;">
+      Luồng Xác Thực TOTP
+    </h2>
+
+    <div style="display:flex; flex-direction:column; gap:0.5rem;">
+      {% set steps = [
+      ('1', 'Đăng ký', 'Tạo username + password. Hệ thống tự sinh TOTP secret (Base32).'),
+      ('2', 'Quét QR', 'QR code chứa otpauth:// URI. Google Authenticator lưu secret.'),
+      ('3', 'Đăng nhập B1', 'Nhập username + password. Server kiểm tra bcrypt hash.'),
+      ('4', 'Đăng nhập B2', 'Nhập mã OTP 6 số. Server dùng pyotp.TOTP.verify() kiểm tra.'),
+      ('5', 'Truy cập', 'OTP hợp lệ → cấp session, redirect dashboard.'),
+      ] %}
+      {% for num, title, desc in steps %}
+      <div style="display:flex; gap:0.75rem; align-items:flex-start;">
+        <span class="step-num-badge">{{ num }}</span>
+        <div>
+          <strong style="color:var(--navy); font-size:0.875rem;">{{ title }}</strong>
+          <p style="font-size:0.8125rem; color:var(--text-muted); margin-top:0.1rem;">{{ desc }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

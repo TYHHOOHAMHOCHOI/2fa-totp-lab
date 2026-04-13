@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Đăng Ký — 2FA Lab{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+  <div class="auth-icon">🛡️</div>
+  <h1 class="auth-title">Tạo Tài Khoản</h1>
+  <p class="auth-subtitle">Đăng ký để bắt đầu sử dụng 2FA Lab</p>
+
+  <form method="POST" action="{{ url_for('auth.register') }}" id="register-form" novalidate>
+
+    <!-- Username -->
+    <div class="form-group">
+      <label class="form-label" for="username">Tên đăng nhập</label>
+      <div class="input-wrapper">
+        <span class="input-icon">👤</span>
+        <input class="form-input" type="text" id="username" name="username" placeholder="Nhập username (3–30 ký tự)"
+          autocomplete="username" required autofocus minlength="3" maxlength="30">
+      </div>
+    </div>
+
+    <!-- Password -->
+    <div class="form-group">
+      <label class="form-label" for="password">Mật khẩu</label>
+      <div class="input-wrapper">
+        <span class="input-icon">🔒</span>
+        <input class="form-input" type="password" id="password" name="password" placeholder="Tối thiểu 6 ký tự"
+          autocomplete="new-password" required minlength="6">
+        <button type="button" class="input-toggle" id="toggle-pw" aria-label="Hiện/ẩn mật khẩu">👁️</button>
+      </div>
+      <!-- Password strength -->
+      <div class="pw-strength" id="pw-strength" style="display:none;">
+        <div class="pw-strength-bar">
+          <div class="pw-strength-fill" id="pw-fill"></div>
+        </div>
+        <div class="pw-strength-text" id="pw-text"></div>
+      </div>
+    </div>
+
+    <!-- Confirm Password -->
+    <div class="form-group">
+      <label class="form-label" for="confirm_password">Xác nhận mật khẩu</label>
+      <div class="input-wrapper">
+        <span class="input-icon">✅</span>
+        <input class="form-input" type="password" id="confirm_password" name="confirm_password"
+          placeholder="Nhập lại mật khẩu" autocomplete="new-password" required>
+        <button type="button" class="input-toggle" id="toggle-confirm" aria-label="Hiện/ẩn">👁️</button>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="margin-top:0.5rem;">
+      🚀 Đăng Ký Ngay
+    </button>
+  </form>
+
+  <div class="auth-footer">
+    Đã có tài khoản? <a href="{{ url_for('auth.login') }}">Đăng nhập</a>
+  </div>
+
+  <div class="security-badge">🔒 Kết nối an toàn SSL/TLS</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Toggle password visibility
+  function togglePw(btnId, inputId) {
+    document.getElementById(btnId).addEventListener('click', function () {
+      const inp = document.getElementById(inputId);
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      this.textContent = inp.type === 'password' ? '👁️' : '🙈';
+    });
+  }
+  togglePw('toggle-pw', 'password');
+  togglePw('toggle-confirm', 'confirm_password');
+
+  // Password strength meter
+  const pwInput = document.getElementById('password');
+  const pwStrength = document.getElementById('pw-strength');
+  const pwFill = document.getElementById('pw-fill');
+  const pwText = document.getElementById('pw-text');
+
+  pwInput.addEventListener('input', function () {
+    const val = this.value;
+    if (!val) { pwStrength.style.display = 'none'; return; }
+
+    pwStrength.style.display = 'block';
+    let score = 0;
+    if (val.length >= 6) score++;
+    if (val.length >= 10) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    const levels = [
+      { w: '20%', c: '#ef4444', t: 'Rất yếu' },
+      { w: '40%', c: '#f97316', t: 'Yếu' },
+      { w: '60%', c: '#eab308', t: 'Trung bình' },
+      { w: '80%', c: '#22c55e', t: 'Mạnh' },
+      { w: '100%', c: '#16a34a', t: 'Rất mạnh 💪' },
+    ];
+    const lvl = levels[Math.min(score, 4)];
+    pwFill.style.width = lvl.w;
+    pwFill.style.background = lvl.c;
+    pwText.style.color = lvl.c;
+    pwText.textContent = lvl.t;
+  });
+</script>
+{% endblock %}
