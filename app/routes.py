@@ -2,6 +2,7 @@ from flask import (Blueprint, render_template, redirect, url_for,
                    request, session, flash)
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime, timedelta
 
 from app import db
 from app.models import User
@@ -153,7 +154,20 @@ def verify_otp():
             flash('Vui lòng nhập đủ 6 chữ số OTP.', 'error')
             return render_template('login.html', step=2, username=user.username)
 
+        # Kiểm tra chống Replay Attack (Used-token blacklist)
+        now = datetime.utcnow()
+        if user.last_used_totp == otp_code and user.last_totp_timestamp:
+            time_diff = now - user.last_totp_timestamp
+            if time_diff < timedelta(minutes=2):
+                flash('Mã OTP này vừa được sử dụng để đăng nhập. Để bảo mật (chống Replay Attack), vui lòng đợi mã mới.', 'error')
+                return render_template('login.html', step=2, username=user.username)
+
         if verify_totp(user.totp_secret, otp_code):
+            # Lưu lại token đã dùng và thời điểm để blacklist
+            user.last_used_totp = otp_code
+            user.last_totp_timestamp = now
+            db.session.commit()
+
             session.pop('otp_user_id', None)
             login_user(user, remember=False)
             flash(f'Chào mừng trở lại, {user.username}! 🎉', 'success')
