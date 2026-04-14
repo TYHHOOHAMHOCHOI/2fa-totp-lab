@@ -167,7 +167,6 @@ def verify_otp():
             user.last_used_totp = otp_code
             user.last_totp_timestamp = now
             db.session.commit()
-
             session.pop('otp_user_id', None)
             login_user(user, remember=False)
             flash(f'Chào mừng trở lại, {user.username}! 🎉', 'success')
