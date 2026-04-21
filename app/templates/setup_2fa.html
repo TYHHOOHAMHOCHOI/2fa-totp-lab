@@ -9,7 +9,19 @@
 
   <!-- QR Code -->
   <div class="qr-container">
-    <img src="{{ qr_image }}" alt="QR Code for Google Authenticator" title="Quét mã này bằng Google Authenticator">
+    <button type="button" class="qr-trigger" id="qr-trigger" aria-label="Phóng to mã QR">
+      <img src="{{ qr_image }}" alt="QR Code for Google Authenticator" title="Nhấp để phóng to mã QR">
+    </button>
+    <p class="qr-hint">Nhấp vào mã QR để xem lớn hơn</p>
+  </div>
+
+  <div class="qr-lightbox" id="qr-lightbox" hidden>
+    <button type="button" class="qr-lightbox-backdrop" id="qr-lightbox-close" aria-label="Đóng ảnh QR phóng to"></button>
+    <div class="qr-lightbox-dialog" role="dialog" aria-modal="true" aria-labelledby="qr-lightbox-title">
+      <button type="button" class="qr-lightbox-x" id="qr-lightbox-x" aria-label="Đóng">×</button>
+      <p class="qr-lightbox-title" id="qr-lightbox-title">Mã QR Google Authenticator</p>
+      <img src="{{ qr_image }}" alt="QR Code phóng to" class="qr-lightbox-image">
+    </div>
   </div>
 
   <!-- Secret Key -->
@@ -66,5 +78,32 @@
       setTimeout(() => btn.textContent = '📋', 2000);
     });
   }
+
+  const qrTrigger = document.getElementById('qr-trigger');
+  const qrLightbox = document.getElementById('qr-lightbox');
+  const qrLightboxClose = document.getElementById('qr-lightbox-close');
+  const qrLightboxX = document.getElementById('qr-lightbox-x');
+
+  function openQrLightbox() {
+    qrLightbox.hidden = false;
+    document.body.classList.add('modal-open');
+    qrLightboxX.focus();
+  }
+
+  function closeQrLightbox() {
+    qrLightbox.hidden = true;
+    document.body.classList.remove('modal-open');
+    qrTrigger.focus();
+  }
+
+  qrTrigger.addEventListener('click', openQrLightbox);
+  qrLightboxClose.addEventListener('click', closeQrLightbox);
+  qrLightboxX.addEventListener('click', closeQrLightbox);
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !qrLightbox.hidden) {
+      closeQrLightbox();
+    }
+  });
 </script>
 {% endblock %}
